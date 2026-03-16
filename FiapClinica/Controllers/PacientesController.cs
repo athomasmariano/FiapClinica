@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FiapClinica.Data;
+﻿using FiapClinica.Data;
+using FiapClinica.Messaging;
 using FiapClinica.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FiapClinica.Controllers;
 
@@ -40,7 +41,7 @@ public class PacientesController : ControllerBase
         _context.Pacientes.Add(paciente);
         await _context.SaveChangesAsync();
 
-        // RabbitMQ depois aqui
+        RabbitMqProducer.EnviarMensagem(paciente);
 
         return CreatedAtAction(nameof(GetById), new { id = paciente.Id }, paciente); // Retorna 201
     }
