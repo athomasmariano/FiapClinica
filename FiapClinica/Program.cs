@@ -1,4 +1,5 @@
 using FiapClinica.Data;
+using FiapClinica.Messaging;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,5 +26,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+RabbitMqConsumer.ConsoleConsume();
 
 app.Run();
