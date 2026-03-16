@@ -1,0 +1,6 @@
+@FiapClinica_HostAddress = http://localhost:5011
+
+GET {{FiapClinica_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
