@@ -32,11 +32,14 @@ public class RabbitMqConsumer : BackgroundService
         {
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
+
             Console.WriteLine($"\n [x] Mensagem Recebida do RabbitMQ (Worker): {message}");
+
+            _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
         };
 
         _channel.BasicConsume(queue: "fila_pacientes",
-                             autoAck: true,
+                             autoAck: false,
                              consumer: consumer);
 
         return Task.CompletedTask;
