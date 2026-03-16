@@ -1,33 +1,51 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Hosting;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 
 namespace FiapClinica.Messaging;
 
-public static class RabbitMqConsumer
+public class RabbitMqConsumer : BackgroundService
 {
-    public static void ConsoleConsume()
+    private readonly IConnection _connection;
+    private readonly IModel _channel;
+
+    public RabbitMqConsumer()
     {
         var factory = new ConnectionFactory { HostName = "localhost" };
-        var connection = factory.CreateConnection();
-        var channel = connection.CreateModel();
+        _connection = factory.CreateConnection();
+        _channel = _connection.CreateModel();
 
-        channel.QueueDeclare(queue: "fila_pacientes",
+        _channel.QueueDeclare(queue: "fila_pacientes",
                              durable: false,
                              exclusive: false,
                              autoDelete: false,
                              arguments: null);
+    }
 
-        var consumer = new EventingBasicConsumer(channel);
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        stoppingToken.ThrowIfCancellationRequested();
+
+        var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += (model, ea) =>
         {
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-            Console.WriteLine($"\n [x] Mensagem Recebida do RabbitMQ: {message}");
+            Console.WriteLine($"\n [x] Mensagem Recebida do RabbitMQ (Worker): {message}");
         };
 
-        channel.BasicConsume(queue: "fila_pacientes",
+        _channel.BasicConsume(queue: "fila_pacientes",
                              autoAck: true,
                              consumer: consumer);
+
+        return Task.CompletedTask;
+    }
+
+    public override void Dispose()
+    {
+        _channel.Close();
+        _connection.Close();
+        base.Dispose();
     }
 }

@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// Registra o Consumer como um serviço de fundo (Worker)
+builder.Services.AddHostedService<RabbitMqConsumer>();
 
 // Registrando o contexto do EF Core com Oracle
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -26,7 +28,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-RabbitMqConsumer.ConsoleConsume();
 
 app.Run();
