@@ -6,13 +6,13 @@ namespace FiapClinica.Messaging;
 
 public static class RabbitMqProducer
 {
-    public static void EnviarMensagem<T>(T mensagem)
+    public static void Publish<T>(T mensagem)
     {
         var factory = new ConnectionFactory { HostName = "localhost" };
         using var connection = factory.CreateConnection();
         using var channel = connection.CreateModel();
 
-        channel.QueueDeclare(queue: "fila_pacientes",
+        channel.QueueDeclare(queue: "paciente-criado",
                              durable: false,
                              exclusive: false,
                              autoDelete: false,
@@ -22,7 +22,7 @@ public static class RabbitMqProducer
         var body = Encoding.UTF8.GetBytes(json);
 
         channel.BasicPublish(exchange: "",
-                             routingKey: "fila_pacientes",
+                             routingKey: "paciente-criado",
                              basicProperties: null,
                              body: body);
     }

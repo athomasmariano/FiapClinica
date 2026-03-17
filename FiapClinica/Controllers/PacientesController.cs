@@ -41,7 +41,7 @@ public class PacientesController : ControllerBase
         _context.Pacientes.Add(paciente);
         await _context.SaveChangesAsync();
 
-        RabbitMqProducer.EnviarMensagem(paciente);
+        RabbitMqProducer.Publish(paciente);
 
         return CreatedAtAction(nameof(GetById), new { id = paciente.Id }, paciente); // Retorna 201
     }

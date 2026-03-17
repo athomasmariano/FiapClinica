@@ -16,7 +16,7 @@ public class RabbitMqConsumer : BackgroundService
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
 
-        _channel.QueueDeclare(queue: "fila_pacientes",
+        _channel.QueueDeclare(queue: "paciente-criado",
                              durable: false,
                              exclusive: false,
                              autoDelete: false,
@@ -38,7 +38,7 @@ public class RabbitMqConsumer : BackgroundService
             _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
         };
 
-        _channel.BasicConsume(queue: "fila_pacientes",
+        _channel.BasicConsume(queue: "paciente-criado",
                              autoAck: false,
                              consumer: consumer);
 
