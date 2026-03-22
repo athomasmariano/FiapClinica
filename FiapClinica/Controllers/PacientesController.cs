@@ -41,9 +41,19 @@ public class PacientesController : ControllerBase
         _context.Pacientes.Add(paciente);
         await _context.SaveChangesAsync();
 
-        RabbitMqProducer.Publish(paciente);
+        // DESAFIO EXTRA 4.3: Try/Catch no RabbitMQ
+        try
+        {
+            RabbitMqProducer.Publish(paciente);
+        }
+        catch (Exception ex)
+        {
+            // Se o RabbitMQ estiver desligado, o código cai aqui, avisa no console, 
+            // mas não quebra a API. O paciente continua sendo salvo (Retorna 201).
+            Console.WriteLine($"\n [AVISO] Paciente salvo no Oracle, mas erro ao conectar no RabbitMQ: {ex.Message}");
+        }
 
-        return CreatedAtAction(nameof(GetById), new { id = paciente.Id }, paciente); // Retorna 201
+        return CreatedAtAction(nameof(GetById), new { id = paciente.Id }, paciente);
     }
 
     [HttpPut("{id}")]
