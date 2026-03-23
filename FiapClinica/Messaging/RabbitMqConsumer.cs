@@ -2,6 +2,8 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
+using System.Text.Json;
+using FiapClinica.Models;
 
 namespace FiapClinica.Messaging;
 
@@ -48,6 +50,23 @@ public class RabbitMqConsumer : BackgroundService
             var message = Encoding.UTF8.GetString(body);
 
             Console.WriteLine($"\n [x] Mensagem Recebida do RabbitMQ (Worker): {message}");
+
+            //Desafio Extra 4.2 Lógica de E-mail
+            try
+            {
+                var paciente = JsonSerializer.Deserialize<Paciente>(message, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                Console.WriteLine("\n=======================================================");
+                Console.WriteLine("     DISPARO DE E-MAIL AUTOMÁTICO (Desafio 4.2)");
+                Console.WriteLine($"    Para: {paciente?.Email}");
+                Console.WriteLine($"    Assunto: Bem-vindo(a) à FIAP Clínica, {paciente?.Nome}!");
+                Console.WriteLine("     Corpo: Seu cadastro foi realizado com sucesso. Aguardamos sua visita.");
+                Console.WriteLine("=======================================================\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n [x] Erro ao processar lógica do e-mail no consumer: {ex.Message}");
+            }
 
             _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
         };
